@@ -31,7 +31,7 @@
         select <include refid="queryColumns"/> from geo_point
         <where>
             <![CDATA[
-                ST_distance_sphere((select `coordinate` from geo_point where `name` = #{name}), `coordinate`) < #{distance} and `name` != #{name}
+                ST_distance_sphere((select `coordinate` from geo_point where `name` = #{name}), `coordinate`) < #{radius} and `name` != #{name}
             ]]>
         </where>
     </select>
