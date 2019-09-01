@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <properties>
+        <property name="dialect" value="mysql"/>
+    </properties>
+
+    <typeAliases>
+        <typeAlias alias="GeoPoint" type="com.leexm.demo.geo.dal.mysql.object.GeoPoint"/>
+        <typeAlias alias="Point" type="com.leexm.demo.geo.dal.mysql.object.Point"/>
+    </typeAliases>
+
+    <typeHandlers>
+        <typeHandler jdbcType="VARCHAR" javaType="Point" handler="com.leexm.demo.geo.dal.mysql.handler.PointTypeHandler"/>
+    </typeHandlers>
+    
+</configuration>
