@@ -1,13 +1,13 @@
 package com.leexm.demo.geo.dal.mysql;
 
-import com.leexm.demo.geo.dal.mysql.dao.MysqlGeoDao;
+import com.leexm.demo.geo.dal.mysql.dao.MysqlGeoPointDao;
 import com.leexm.demo.geo.dal.mysql.object.GeoPoint;
-import com.leexm.demo.geo.dal.mysql.object.Point;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.geo.Point;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -18,10 +18,10 @@ import java.util.List;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class MysqlGeoDaoTest {
+public class MysqlGeoPointDaoTest {
 
     @Autowired
-    private MysqlGeoDao geoPointDAO;
+    private MysqlGeoPointDao geoPointDAO;
 
     @Test
     public void testQueryByName() {

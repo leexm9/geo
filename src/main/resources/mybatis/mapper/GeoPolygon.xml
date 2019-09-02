@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leexm.demo.geo.dal.mysql.dao.MysqlGeoPolygonDao">
+    <resultMap id="geoPolygon" type="GeoPolygon">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="detail" column="detail"/>
+        <result property="regional" column="regional" typeHandler="com.leexm.demo.geo.dal.mysql.handler.PolygonTypeHandler"/>
+    </resultMap>
+
+    <sql id="queryColumns">
+        id, `name`, detail, ST_AsText(regional) as regional
+    </sql>
+
+    <insert id="insert" parameterType="GeoPolygon" useGeneratedKeys="true" keyProperty="id">
+        insert into geo_polygon (`name`, detail, regional)
+        values (#{name}, #{detail}, ST_GeomFromText(#{regional}))
+    </insert>
+
+    <select id="queryByName" resultMap="geoPolygon">
+        select <include refid="queryColumns"/> from geo_polygon where `name` = #{name}
+    </select>
+
+    <select id="containsPoint" resultType="java.lang.Integer">
+        select ST_within(ST_GeomFromText(#{coordinate}), regional) from geo_polygon where id = #{id};
+    </select>
+
+    <select id="queryByPoint" resultMap="geoPolygon">
+        select <include refid="queryColumns"/> from geo_polygon
+        <where>
+            ST_contains(regional, ST_GeomFromText(#{coordinate})) = 1
+        </where>
+    </select>
+
+</mapper>

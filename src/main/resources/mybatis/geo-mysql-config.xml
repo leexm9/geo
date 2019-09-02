@@ -8,11 +8,14 @@
 
     <typeAliases>
         <typeAlias alias="GeoPoint" type="com.leexm.demo.geo.dal.mysql.object.GeoPoint"/>
-        <typeAlias alias="Point" type="com.leexm.demo.geo.dal.mysql.object.Point"/>
+        <typeAlias alias="Point" type="org.springframework.data.geo.Point"/>
+        <typeAlias alias="GeoPolygon" type="com.leexm.demo.geo.dal.mysql.object.GeoPolygon"/>
+        <typeAlias alias="Polygon" type="org.springframework.data.geo.Polygon"/>
     </typeAliases>
 
     <typeHandlers>
-        <typeHandler jdbcType="VARCHAR" javaType="Point" handler="com.leexm.demo.geo.dal.mysql.handler.PointTypeHandler"/>
+        <typeHandler handler="com.leexm.demo.geo.dal.mysql.handler.PointTypeHandler" jdbcType="VARCHAR" javaType="Point"/>
+        <typeHandler handler="com.leexm.demo.geo.dal.mysql.handler.PolygonTypeHandler" jdbcType="VARCHAR" javaType="java.util.List"/>
     </typeHandlers>
     
 </configuration>

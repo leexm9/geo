@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.leexm.demo.geo.dal.mysql.dao.MysqlGeoDao">
+<mapper namespace="com.leexm.demo.geo.dal.mysql.dao.MysqlGeoPointDao">
     <resultMap id="geoPoint" type="GeoPoint">
         <id property="id" column="id"/>
         <result property="name" column="name"/>

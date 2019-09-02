@@ -1,18 +1,29 @@
 package com.leexm.demo.geo.dal.mysql.dao;
 
 import com.leexm.demo.geo.dal.mysql.object.GeoPoint;
-import com.leexm.demo.geo.dal.mysql.object.Point;
+import org.springframework.data.geo.Point;
 
 import java.util.List;
 
 /**
+ * 操作 Point 类型
+ *
  * @author leexm
  * @date 2019-08-18 18:30
  */
-public interface MysqlGeoDao {
+public interface MysqlGeoPointDao {
+
+    /**
+     * 插入新的地址
+     *
+     * @param geoPoint
+     * @return
+     */
+    int insert(GeoPoint geoPoint);
 
     /**
      * 根据名称取地点
+     *
      * @param name
      * @return
      */
@@ -20,20 +31,15 @@ public interface MysqlGeoDao {
 
     /**
      * 根据主键取地点
+     *
      * @param id
      * @return
      */
     GeoPoint queryById(Long id);
 
     /**
-     * 插入新的地址
-     * @param geoPoint
-     * @return
-     */
-    int insert(GeoPoint geoPoint);
-
-    /**
      * 取距 {name} {distance}范围内的地点集合
+     *
      * @param name
      * @param radius, 单位：米
      * @return
@@ -42,6 +48,7 @@ public interface MysqlGeoDao {
 
     /**
      * 取 {coordinate} 为圆心， 半径 {radius} 范围内的点
+     *
      * @param coordinate
      * @param radius
      * @return

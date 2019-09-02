@@ -10,35 +10,59 @@
 
   mysql 对这块的支持，详细的可以查看[官方文档，](https://dev.mysql.com/doc/refman/5.7/en/spatial-analysis-functions.html)本项目中只实现其中的部分功能。
 
-~~~sql
-# 建表语句
-CREATE TABLE `geo_point` (
-  `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `name` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '名称',
-  `detail` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '详情',
-  `lng` decimal(14,11) DEFAULT NULL COMMENT '经度',
-  `lat` decimal(14,11) DEFAULT NULL COMMENT '纬度',
-  `coordinate` coordinate NOT NULL COMMENT '坐标',
-  `geohash` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci GENERATED ALWAYS AS (st_geohash(`coordinate`,8)) VIRTUAL COMMENT 'geohash编码',
-  PRIMARY KEY (`id`),
-  SPATIAL KEY `idx_point` (`coordinate`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='地理位置信息';
+  - 对坐标点的相关操作
 
-# insert geohash 是根据 coordinate 计算来的使用 default
-insert into `geo_point` values (null, '4号楼', '未来科技城海创园4号楼', 120.025, 30.2873, ST_GeomFromText('POINT(120.025 30.2873)'), default);
+    ~~~sql
+    # 建表语句
+    CREATE TABLE `geo_point` (
+      `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+      `name` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '名称',
+      `detail` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '详情',
+      `lng` decimal(14,11) DEFAULT NULL COMMENT '经度',
+      `lat` decimal(14,11) DEFAULT NULL COMMENT '纬度',
+      `coordinate` coordinate NOT NULL COMMENT '坐标',
+      `geohash` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci GENERATED ALWAYS AS (st_geohash(`coordinate`,8)) VIRTUAL COMMENT 'geohash编码',
+      PRIMARY KEY (`id`),
+      SPATIAL KEY `idx_point` (`coordinate`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COMMENT='地理位置信息';
+    
+    # insert geohash 是根据 coordinate 计算来的使用 default
+    insert into `geo_point` values (null, '4号楼', '未来科技城海创园4号楼', 120.025, 30.2873, ST_GeomFromText('POINT(120.025 30.2873)'), default);
+    
+    # 计算两个地点的距离，取整
+    select floor(ST_distance_sphere((select coordinate from geo_point where name = '西城时代'), coordinate)) distance from geo_point where name = '18号楼';
+    
+    # 距离 18 号楼小于 500m 范围的建筑物
+    select name from geo_point where ST_distance_sphere((select coordinate from geo_point where name = '18号楼'), coordinate) < 500 and name != '18号楼';
+    
+    # 距离给定坐标 500m 范围内的建筑物
+    select name from geo_point where ST_distance_sphere(ST_GeomFromText('POINT(120.023 30.2863)'), coordinate) < 500;
+    
+    # 距离 18 号楼小于 500m 范围的建筑物并排序
+    select name, floor(ST_distance_sphere((select coordinate from geo_point where name = '18号楼'), coordinate)) distance, ST_astext(coordinate) coordinate from geo_point where ST_distance_sphere((select coordinate from geo_point where name = '18号楼'), coordinate) < 500 and name != '18号楼' order by distance asc;
+    ~~~
 
-# 计算两个地点的距离，取整
-select floor(ST_distance_sphere((select coordinate from geo_point where name = '西城时代'), coordinate)) distance from geo_point where name = '18号楼';
+  - 对区域的相关操作
 
-# 距离 18 号楼小于 500m 范围的建筑物
-select name from geo_point where ST_distance_sphere((select coordinate from geo_point where name = '18号楼'), coordinate) < 500 and name != '18号楼';
-
-# 距离给定坐标 500m 范围内的建筑物
-select name from geo_point where ST_distance_sphere(ST_GeomFromText('POINT(120.023 30.2863)'), coordinate) < 500;
-
-# 距离 18 号楼小于 500m 范围的建筑物并排序
-select name, floor(ST_distance_sphere((select coordinate from geo_point where name = '18号楼'), coordinate)) distance, ST_astext(coordinate) coordinate from geo_point where ST_distance_sphere((select coordinate from geo_point where name = '18号楼'), coordinate) < 500 and name != '18号楼' order by distance asc;
-~~~
+    ~~~sql
+    # 建表语句
+    CREATE TABLE `geo_polygon` (
+      `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+      `name` varchar(40) NOT NULL COMMENT '名称',
+      `detail` varchar(200) DEFAULT NULL COMMENT '详情',
+      `regional` polygon NOT NULL COMMENT '地理信息',
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+    
+    # insert 语句
+    INSERT INTO `geo_polygon` VALUES (NULL, '阿里巴巴', '杭州阿里巴巴西溪园区', NULL, ST_GeomFromText('POLYGON((120.0274133808 30.2853789625, 120.0340805100 30.2873510540, 120.0344882058 30.2864616115, 120.0355503605 30.2867025030, 120.0361404465 30.2848124156, 120.0374815510 30.2850069851, 120.0379536198 30.2834689491, 120.0332651185 30.2831075997, 120.0284540779 30.2821175623, 120.0274133808 30.2853789625))'));
+    
+    # 判断点是否在指定区域，1：包含，0：不包含
+    SELECT ST_within(ST_GeomFromText('POINT(120.023 30.2863)'), regional) from geo_polygon where `name`='海创园';
+    
+    # 取包含指定的点的区域
+    select `name` from geo_polygon where ST_contains(regional, ST_GeomFromText('POINT(120.035 30.2855)')) = 1;
+    ~~~
 
 - mongodb 相关
 
@@ -55,3 +79,7 @@ db.geo_point.createIndex({"coordinate":"2dsphere"})
 
   redis 对地理信息定位的支持，详细的可以参考[说明文档](http://redisdoc.com/geo/geoadd.html)。
 
+
+~~~
+
+~~~

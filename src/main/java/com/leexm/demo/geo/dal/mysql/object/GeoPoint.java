@@ -1,6 +1,7 @@
 package com.leexm.demo.geo.dal.mysql.object;
 
 import com.leexm.demo.geo.util.JsonUtils;
+import org.springframework.data.geo.Point;
 
 /**
  * 表示地点

@@ -2,7 +2,7 @@ package com.leexm.demo.geo.dal.mongo;
 
 import com.leexm.demo.geo.dal.mongo.dao.MongoGeoDao;
 import com.leexm.demo.geo.dal.mongo.object.MongoGeoPoint;
-import com.leexm.demo.geo.dal.mysql.dao.MysqlGeoDao;
+import com.leexm.demo.geo.dal.mysql.dao.MysqlGeoPointDao;
 import com.leexm.demo.geo.dal.mysql.object.GeoPoint;
 import com.leexm.demo.geo.util.PointUtils;
 import org.junit.Assert;
@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class MongoGeoDaoTest {
     private MongoGeoDao mongoGeoDao;
 
     @Autowired
-    private MysqlGeoDao mysqlGeoDao;
+    private MysqlGeoPointDao mysqlGeoDao;
 
     /**
      * 导入数据，只需要执行一次即可

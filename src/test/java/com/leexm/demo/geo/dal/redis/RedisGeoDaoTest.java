@@ -2,7 +2,7 @@ package com.leexm.demo.geo.dal.redis;
 
 import com.leexm.demo.geo.dal.mongo.dao.MongoGeoDao;
 import com.leexm.demo.geo.dal.mongo.object.MongoGeoPoint;
-import com.leexm.demo.geo.dal.mysql.dao.MysqlGeoDao;
+import com.leexm.demo.geo.dal.mysql.dao.MysqlGeoPointDao;
 import com.leexm.demo.geo.dal.mysql.object.GeoPoint;
 import com.leexm.demo.geo.dal.redis.dao.RedisGeoDao;
 import org.junit.Ignore;
@@ -26,7 +26,7 @@ public class RedisGeoDaoTest {
     private RedisGeoDao redisGeoDao;
 
     @Autowired
-    private MysqlGeoDao mysqlGeoDao;
+    private MysqlGeoPointDao mysqlGeoDao;
 
     @Autowired
     private MongoGeoDao mongoGeoDao;

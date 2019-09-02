@@ -1,11 +1,11 @@
 package com.leexm.demo.geo.dal.mysql.handler;
 
-import com.leexm.demo.geo.dal.mysql.object.Point;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
+import org.springframework.data.geo.Point;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -73,11 +73,6 @@ public class PointTypeHandler extends BaseTypeHandler<Point> {
             return null;
         }
         return new Point(Double.parseDouble(items[0]), Double.parseDouble(items[1]));
-    }
-
-    public static void main(String[] args) {
-        String yxy = String.format(POINT_FORMAT, 1.4, 3.3);
-        System.out.println(yxy);
     }
 
 }

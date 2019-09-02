@@ -1,7 +1,6 @@
 package com.leexm.demo.geo.dal.mongo.dao;
 
 import com.leexm.demo.geo.dal.mongo.object.MongoGeoPoint;
-import com.leexm.demo.geo.dal.mysql.object.Point;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
