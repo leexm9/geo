@@ -10,6 +10,8 @@
 
   mysql 对这块的支持，详细的可以查看[官方文档，](https://dev.mysql.com/doc/refman/5.7/en/spatial-analysis-functions.html)本项目中只实现其中的部分功能。
 
+  本项目中涉及的数据参考  mybatis 文件下sql 文件：坐标点文件 geo_point.sql，地理区域文件 geo_polygon。
+
   - 对坐标点的相关操作
 
     ~~~sql
@@ -73,13 +75,9 @@
 ~~~
 # mongo 对地理信息字段建立 2dsphere 索引
 db.geo_point.createIndex({"coordinate":"2dsphere"})
+db.geo_polygon.createIndex({"coordinate":"2dsphere"})
 ~~~
 
 - redis 相关
 
-  redis 对地理信息定位的支持，详细的可以参考[说明文档](http://redisdoc.com/geo/geoadd.html)。
-
-
-~~~
-
-~~~
+  redis 对地理信息定位的支持——支持坐标点，详细的可以参考[说明文档](http://redisdoc.com/geo/geoadd.html)。

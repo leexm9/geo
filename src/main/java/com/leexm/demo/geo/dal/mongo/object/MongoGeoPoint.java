@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -15,8 +14,7 @@ import java.util.Objects;
  * @date 2019-09-01 09:53
  */
 @Document(collection = "geo_point")
-public class MongoGeoPoint implements Serializable {
-    private static final long serialVersionUID = -3750340830429045269L;
+public class MongoGeoPoint {
 
     /**
      * mongo 生成的主键

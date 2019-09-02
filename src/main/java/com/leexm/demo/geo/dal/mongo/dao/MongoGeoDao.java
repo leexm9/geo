@@ -1,6 +1,7 @@
 package com.leexm.demo.geo.dal.mongo.dao;
 
 import com.leexm.demo.geo.dal.mongo.object.MongoGeoPoint;
+import com.leexm.demo.geo.dal.mongo.object.MongoGeoPolygon;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -27,13 +29,16 @@ public class MongoGeoDao {
 
     private static final Logger logger = LoggerFactory.getLogger(MongoGeoDao.class);
 
-    private static final String INDEX_FIELD = "coordinate";
+    private static final String POINT_INDEX = "coordinate";
+
+    private static final String POLYGON_INDEX = "regional";
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
     /**
      * 新增地址信息
+     *
      * @param geoPoint
      * @return
      */
@@ -54,6 +59,7 @@ public class MongoGeoDao {
 
     /**
      * 根据名称取地址信息
+     *
      * @param
      * @return
      */
@@ -74,6 +80,7 @@ public class MongoGeoDao {
 
     /**
      * 根据名称取地址信息
+     *
      * @param name
      * @return
      */
@@ -94,6 +101,7 @@ public class MongoGeoDao {
 
     /**
      * 取距 {name} {distance}范围内的地点集合
+     *
      * @param name
      * @param radius, 单位：米
      * @return
@@ -113,6 +121,7 @@ public class MongoGeoDao {
 
     /**
      * 取 ({lng} {lat}) 为圆心， 半径 {radius} 范围内的地址
+     *
      * @param radius
      * @return
      */
@@ -124,7 +133,7 @@ public class MongoGeoDao {
         Distance distance = new Distance(radius2, Metrics.KILOMETERS);
         Point point = new Point(lng, lat);
         Circle circle = new Circle(point, distance);
-        Query query = Query.query(Criteria.where(INDEX_FIELD).withinSphere(circle));
+        Query query = Query.query(Criteria.where(POINT_INDEX).withinSphere(circle));
         try {
             points = mongoTemplate.find(query, MongoGeoPoint.class);
         } catch (Exception e) {
@@ -136,6 +145,7 @@ public class MongoGeoDao {
     /**
      * 查找距给定坐标点 ({lng} {lat}) 范围在 [minDistance, maxDistance) 内的点
      * 可以利用这个方法，实现渐变范围查找
+     *
      * @param lng
      * @param lat
      * @param minDistance
@@ -149,7 +159,7 @@ public class MongoGeoDao {
         Distance radius1 = new Distance(minDistance / 1000.0, Metrics.KILOMETERS);
         Distance radius2 = new Distance(maxDistance / 1000.0, Metrics.KILOMETERS);
         Point point = new Point(lng, lat);
-        Query query = Query.query(Criteria.where(INDEX_FIELD).nearSphere(point)
+        Query query = Query.query(Criteria.where(POINT_INDEX).nearSphere(point)
                 .minDistance(radius1.getNormalizedValue())
                 .maxDistance(radius2.getNormalizedValue()));
         try {
@@ -158,6 +168,82 @@ public class MongoGeoDao {
             logger.error("[MongoGeoDao] query sorted points, lng:{}, lat:{} occur exception:", lng, lat, e);
         }
         return points;
+    }
+
+    /**
+     * 新增区域的地理信息
+     *
+     * @param geoPolygon
+     * @return
+     */
+    public boolean insertPolygon(MongoGeoPolygon geoPolygon) {
+        if (geoPolygon == null || geoPolygon.getRegional() == null) {
+            return false;
+        }
+
+        boolean flag = true;
+        try {
+            mongoTemplate.save(geoPolygon);
+        } catch (Exception e) {
+            flag = false;
+            logger.error("[MongoGeoDao] insert polygon:{} occur exception:", geoPolygon, e);
+        }
+        return flag;
+    }
+
+    /**
+     * 根据名称取地理区域
+     *
+     * @param name
+     * @return
+     */
+    public MongoGeoPolygon queryPolygonByName(String name) {
+        if (StringUtils.isBlank(name)) {
+            return null;
+        }
+        MongoGeoPolygon polygon = null;
+        Query query = new Query();
+        query.addCriteria(Criteria.where("name").is(name));
+        try {
+            polygon = mongoTemplate.findOne(query, MongoGeoPolygon.class);
+        } catch (Exception e) {
+            logger.error("[MongoGeoDao] query polygon, name:{} occur exception:", name, e);
+        }
+        return polygon;
+    }
+
+    /**
+     * 判断坐标是否在区域范围内
+     *
+     * @param name
+     * @param coordinate
+     * @return
+     */
+    public boolean containsPoint(String name, Point coordinate) {
+        MongoGeoPolygon polygon = this.queryPolygonByPoint(coordinate);
+        boolean flag = false;
+        if (polygon != null && StringUtils.equals(polygon.getName(), name)) {
+            flag = true;
+        }
+        return flag;
+    }
+
+    /**
+     * 查找指定坐标所在的地理区域
+     *
+     * @param coordinate 坐标
+     * @return
+     */
+    public MongoGeoPolygon queryPolygonByPoint(Point coordinate) {
+        GeoJsonPoint geoJsonPoint = new GeoJsonPoint(coordinate);
+        Query query = Query.query(Criteria.where(POLYGON_INDEX).intersects(geoJsonPoint));
+        MongoGeoPolygon polygon = null;
+        try {
+            polygon = mongoTemplate.findOne(query, MongoGeoPolygon.class);
+        } catch (Exception e) {
+            logger.error("[MongoGeoDao] query polygon which contains point:{} occur exception:", coordinate, e);
+        }
+        return polygon;
     }
 
 }
