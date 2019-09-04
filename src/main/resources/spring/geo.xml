@@ -69,4 +69,9 @@
         <constructor-arg name="port" value="${redis.port}"/>
     </bean>
 
+    <bean id="aerospikeClient" class="com.aerospike.client.AerospikeClient">
+        <constructor-arg name="hostname" value="${aerospike.host}"/>
+        <constructor-arg name="port" value="${aerospike.port}"/>
+    </bean>
+
 </beans>

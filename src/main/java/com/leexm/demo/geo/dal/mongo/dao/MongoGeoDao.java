@@ -58,7 +58,7 @@ public class MongoGeoDao {
     }
 
     /**
-     * 根据名称取地址信息
+     * 根据主键取地址信息
      *
      * @param
      * @return
@@ -100,28 +100,10 @@ public class MongoGeoDao {
     }
 
     /**
-     * 取距 {name} {distance}范围内的地点集合
-     *
-     * @param name
-     * @param radius, 单位：米
-     * @return
-     */
-    public List<MongoGeoPoint> nearWithin(String name, double radius) {
-        if (StringUtils.isBlank(name)) {
-            throw new NullPointerException("name is blank.");
-        }
-        MongoGeoPoint center = this.queryByName(name);
-        if (center == null) {
-            return null;
-        }
-        List<MongoGeoPoint> points = this.queryWithinRadius(center.getLng(), center.getLat(), radius);
-        points.remove(center);
-        return points;
-    }
-
-    /**
      * 取 ({lng} {lat}) 为圆心， 半径 {radius} 范围内的地址
      *
+     * @param lng 经度
+     * @param lat 纬度
      * @param radius
      * @return
      */
@@ -139,6 +121,26 @@ public class MongoGeoDao {
         } catch (Exception e) {
             logger.error("[MongoGeoDao] query points, lng:{}, lat:{} occur exception:", lng, lat, e);
         }
+        return points;
+    }
+
+    /**
+     * 取距 {name} {distance}范围内的地点集合
+     *
+     * @param name
+     * @param radius, 单位：米
+     * @return
+     */
+    public List<MongoGeoPoint> nearWithin(String name, double radius) {
+        if (StringUtils.isBlank(name)) {
+            throw new NullPointerException("name is blank.");
+        }
+        MongoGeoPoint center = this.queryByName(name);
+        if (center == null) {
+            return null;
+        }
+        List<MongoGeoPoint> points = this.queryWithinRadius(center.getLng(), center.getLat(), radius);
+        points.remove(center);
         return points;
     }
 
@@ -213,22 +215,6 @@ public class MongoGeoDao {
     }
 
     /**
-     * 判断坐标是否在区域范围内
-     *
-     * @param name
-     * @param coordinate
-     * @return
-     */
-    public boolean containsPoint(String name, Point coordinate) {
-        MongoGeoPolygon polygon = this.queryPolygonByPoint(coordinate);
-        boolean flag = false;
-        if (polygon != null && StringUtils.equals(polygon.getName(), name)) {
-            flag = true;
-        }
-        return flag;
-    }
-
-    /**
      * 查找指定坐标所在的地理区域
      *
      * @param coordinate 坐标
@@ -244,6 +230,22 @@ public class MongoGeoDao {
             logger.error("[MongoGeoDao] query polygon which contains point:{} occur exception:", coordinate, e);
         }
         return polygon;
+    }
+
+    /**
+     * 判断坐标是否在区域范围内
+     *
+     * @param name
+     * @param coordinate
+     * @return
+     */
+    public boolean containsPoint(String name, Point coordinate) {
+        MongoGeoPolygon polygon = this.queryPolygonByPoint(coordinate);
+        boolean flag = false;
+        if (polygon != null && StringUtils.equals(polygon.getName(), name)) {
+            flag = true;
+        }
+        return flag;
     }
 
 }

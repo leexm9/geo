@@ -23,7 +23,9 @@ public class GeoPolygon {
     /** 详情 */
     private String detail;
 
-    /** 地理区域坐标集 */
+    /**
+     * 地理区域坐标集，注意：Polygon 的点要首尾相连，即最后一个点要和第一个点有同样的经纬度
+     */
     private List<Polygon> regional;
 
     public Long getId() {

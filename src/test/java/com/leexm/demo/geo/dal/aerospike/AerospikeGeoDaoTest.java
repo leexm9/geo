@@ -1,11 +1,10 @@
-package com.leexm.demo.geo.dal.mongo;
+package com.leexm.demo.geo.dal.aerospike;
 
 import com.leexm.demo.geo.dal.mongo.dao.MongoGeoDao;
 import com.leexm.demo.geo.dal.mongo.object.MongoGeoPoint;
 import com.leexm.demo.geo.dal.mongo.object.MongoGeoPolygon;
 import com.leexm.demo.geo.dal.mysql.dao.MysqlGeoPointDao;
 import com.leexm.demo.geo.dal.mysql.object.GeoPoint;
-import com.leexm.demo.geo.util.GeoUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,11 +20,14 @@ import java.util.List;
 
 /**
  * @author leexm
- * @date 2019-09-01 10:58
+ * @date 2019-09-04 02:56
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class MongoGeoDaoTest {
+public class AerospikeGeoDaoTest {
+
+    @Autowired
+    private AerospikeGeoDao aerospikeGeoDao;
 
     @Autowired
     private MongoGeoDao mongoGeoDao;
@@ -34,29 +36,21 @@ public class MongoGeoDaoTest {
     private MysqlGeoPointDao mysqlGeoPointDao;
 
     /**
-     * 导入数据，只需要执行一次即可
+     * 导入数据使用
      */
     @Ignore
     @Test
-    public void insertPoint() {
+    public void testInasertPoint() {
         for (long i = 1; i <= 9; i++) {
             GeoPoint geoPoint = mysqlGeoPointDao.queryById(i);
-            mongoGeoDao.insertPoint(GeoUtils.point2MongoPoint(geoPoint));
+            MongoGeoPoint mongoGeoPoint = mongoGeoDao.queryByName(geoPoint.getName());
+            aerospikeGeoDao.insertPoint(mongoGeoPoint);
         }
     }
 
     @Test
     public void testQueryById() {
-        MongoGeoPoint mongoGeoPoint = mongoGeoDao.queryById("5d6b36e1b92fb61aabfa399a");
-        System.out.println("=================");
-        System.out.println(mongoGeoPoint);
-        System.out.println("=================");
-        Assert.assertNotNull(mongoGeoPoint);
-    }
-
-    @Test
-    public void testQueryByName() {
-        MongoGeoPoint mongoGeoPoint = mongoGeoDao.queryByName("18号楼");
+        MongoGeoPoint mongoGeoPoint = aerospikeGeoDao.queryById("5d6b36e1b92fb61aabfa3993");
         System.out.println("=================");
         System.out.println(mongoGeoPoint);
         System.out.println("=================");
@@ -65,23 +59,7 @@ public class MongoGeoDaoTest {
 
     @Test
     public void testQueryWithinRadius() {
-        List<MongoGeoPoint> mongoGeoPoints = mongoGeoDao.queryWithinRadius(120.023, 30.2863, 500);
-        System.out.println("=================");
-        System.out.println(mongoGeoPoints);
-        System.out.println("=================");
-    }
-
-    @Test
-    public void testNearWithin() {
-        List<MongoGeoPoint> mongoGeoPoints = mongoGeoDao.nearWithin("18号楼", 98);
-        System.out.println("=================");
-        System.out.println(mongoGeoPoints);
-        System.out.println("=================");
-    }
-
-    @Test
-    public void testQueryWithinRadiusSorted() {
-        List<MongoGeoPoint> mongoGeoPoints = mongoGeoDao.queryWithinRadiusSorted(120.023, 30.2863, 100, 500);
+        List<MongoGeoPoint> mongoGeoPoints = aerospikeGeoDao.queryWithinRadius(120.023, 30.2863, 100);
         System.out.println("=================");
         System.out.println(mongoGeoPoints);
         System.out.println("=================");
@@ -94,6 +72,7 @@ public class MongoGeoDaoTest {
     @Test
     public void testInsertPolygon() {
         MongoGeoPolygon geoPolygon = new MongoGeoPolygon();
+        geoPolygon.setId("5d6d4b5cb92fb601847d694b");
         geoPolygon.setName("海创园");
         geoPolygon.setDetail("杭州未来科技城");
         List<Point> points = new ArrayList<>();
@@ -105,10 +84,11 @@ public class MongoGeoDaoTest {
         GeoJsonPolygon geoJsonPolygon = new GeoJsonPolygon(points);
         geoPolygon.setRegional(geoJsonPolygon);
 
-        boolean flag = mongoGeoDao.insertPolygon(geoPolygon);
+        boolean flag = aerospikeGeoDao.insertPolygon(geoPolygon);
         Assert.assertTrue(flag);
 
         geoPolygon = new MongoGeoPolygon();
+        geoPolygon.setId("5d6d4b5cb92fb601847d694c");
         geoPolygon.setName("阿里巴巴");
         geoPolygon.setDetail("杭州阿里巴巴西溪园区");
         points = new ArrayList<>();
@@ -125,40 +105,20 @@ public class MongoGeoDaoTest {
         geoJsonPolygon = new GeoJsonPolygon(points);
         geoPolygon.setRegional(geoJsonPolygon);
 
-        flag = mongoGeoDao.insertPolygon(geoPolygon);
+        flag = aerospikeGeoDao.insertPolygon(geoPolygon);
         Assert.assertTrue(flag);
-    }
-
-    @Test
-    public void testQueryPolygonByName() {
-        MongoGeoPolygon polygon = mongoGeoDao.queryPolygonByName("阿里巴巴");
-        System.out.println("================");
-        System.out.println(polygon);
-        System.out.println("================");
-    }
-
-    @Test
-    public void testContainsPoint() {
-        // 这个点在海创园范围内
-        Point point = new Point(120.023, 30.2863);
-        boolean flag = mongoGeoDao.containsPoint("海创园", point);
-        Assert.assertTrue(flag);
-
-        point = new Point(120.035, 30.2855);
-        flag = mongoGeoDao.containsPoint("海创园", point);
-        Assert.assertFalse(flag);
     }
 
     @Test
     public void testQueryPolygonByPoint() {
         // 这个点在海创园范围内
         Point point = new Point(120.023, 30.2863);
-        MongoGeoPolygon geoPolygon = mongoGeoDao.queryPolygonByPoint(point);
+        MongoGeoPolygon geoPolygon = aerospikeGeoDao.queryPolygonByPoint(point);
         Assert.assertEquals("海创园", geoPolygon.getName());
 
         // 这个点不在海川园范围内
         point = new Point(120.035, 30.2855);
-        geoPolygon = mongoGeoDao.queryPolygonByPoint(point);
+        geoPolygon = aerospikeGeoDao.queryPolygonByPoint(point);
         Assert.assertEquals("阿里巴巴", geoPolygon.getName());
     }
 

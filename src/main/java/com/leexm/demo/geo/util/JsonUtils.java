@@ -33,7 +33,7 @@ public class JsonUtils {
         try {
             return mapper.readValue(str, clazz);
         } catch (IOException e) {
-            logger.error("[JsonUtils] convert string:{} to object:{} error,", str, clazz, e);
+            logger.error("[JsonUtils] convert string:{} to object:{} exception,", str, clazz, e);
         }
         return null;
     }

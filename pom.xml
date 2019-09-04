@@ -73,6 +73,13 @@
             <artifactId>jedis</artifactId>
         </dependency>
 
+        <!-- aerospike -->
+        <dependency>
+            <groupId>com.aerospike</groupId>
+            <artifactId>aerospike-client</artifactId>
+            <version>4.0.8</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

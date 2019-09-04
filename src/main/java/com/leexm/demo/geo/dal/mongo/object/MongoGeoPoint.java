@@ -126,4 +126,13 @@ public class MongoGeoPoint {
     public String toString() {
         return JsonUtils.obj2String(this);
     }
+
+    public static void main(String[] args) {
+        GeoJsonPoint point = new GeoJsonPoint(123.4141, 85.4141);
+        String str = JsonUtils.obj2String(point);
+        System.out.println(str);
+        System.out.println("============");
+        GeoJsonPoint point2 = JsonUtils.string2Obj(str, GeoJsonPoint.class);
+        System.out.println(JsonUtils.obj2String(point2));
+    }
 }

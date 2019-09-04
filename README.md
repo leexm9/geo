@@ -81,3 +81,18 @@ db.geo_polygon.createIndex({"coordinate":"2dsphere"})
 - redis 相关
 
   redis 对地理信息定位的支持——支持坐标点，详细的可以参考[说明文档](http://redisdoc.com/geo/geoadd.html)。
+  
+- aerospike 相关
+
+  aerospike 相关内容就不写了，这里只是展示下 aerospike 在 geo 这块的用法，地理信息字段的 bin 需要建立二级索引
+
+  ~~~
+  create index index_point on ns1.geo_point (coordinate) geo2dsphere
+  create index loc_polygon on ns1.geo_polygon (regional) geo2dsphere
+  ~~~
+
+  可以将数据所有数据写在一个 set 中，我这里便于区分写了两个 set
+
+### 说明：
+
+关于 geo 的相关用法还有很多知识，本项目只是部分展示数据库对这块的支持，就不过多展开了。对 geo 这块也有开源的库支持直接计算，比如 google 的 S2。
